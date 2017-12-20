@@ -3,7 +3,7 @@ doctype html
 html(lang="ja")
 
 	- var title = "ブラウザのタブに表示されるタイトルです";
-	- var myScripts=["/public/js/index.js"];
+	- var myScripts=["https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js","/public/js/index.js"];
 	- var myStyles=["/public/css/index.css"];
 	include ../templete/_head.pug
 
@@ -18,6 +18,8 @@ html(lang="ja")
 		form#chatbox
 			textarea
 			input(type="submit" value="送信")
+		p hoge
+		canvas#lineChart
 
 	include ../templete/_footer.pug
 

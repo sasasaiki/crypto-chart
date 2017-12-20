@@ -81,6 +81,7 @@ var socket = null;
 function init() {
     var $messages = $("#messages");
     setWebSocket($messages);
+    displayLineChart();
 }
 function setWebSocket($messages) {
     if (!window["WebSocket"]) {
@@ -96,6 +97,92 @@ function setWebSocket($messages) {
             console.log("onmessages");
         };
     }
+}
+function displayLineChart() {
+    var data = {
+        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        datasets: [
+            {
+                label: "Prime and Fibonacci",
+                fillColor: "rgba(220,220,220,0.2)",
+                strokeColor: "rgba(220,220,220,1)",
+                pointColor: "rgba(220,220,220,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(220,220,220,1)",
+                data: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+            },
+            {
+                label: "My Second dataset",
+                fillColor: "rgba(151,187,205,0.2)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(151,187,205,1)",
+                data: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+            }
+        ]
+    };
+    var canvas = document.getElementById("lineChart");
+    var ctx = canvas.getContext("2d");
+    var lc = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['A', 'B', 'C', 'D', 'E'],
+            datasets: [{
+                    data: [5, 20, 11, 2, 30],
+                    backgroundColor: ['#FF4444', '#4444FF', '#44BB44', '#FFFF44', '#FF44FF']
+                }]
+        },
+        options: {
+            responsive: true,
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                fontSize: 18,
+                text: 'タイトル'
+            },
+            scales: {
+                yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: '縦軸ラベル',
+                            fontSize: 18
+                        },
+                        ticks: {
+                            min: 0,
+                            max: 30,
+                            fontSize: 18,
+                        },
+                    }],
+                xAxes: [{
+                        display: true,
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.4,
+                        scaleLabel: {
+                            display: true,
+                            labelString: '横軸ラベル',
+                            fontSize: 18
+                        },
+                        ticks: {
+                            fontSize: 18
+                        },
+                    }],
+            },
+            layout: {
+                padding: {
+                    left: 100,
+                    right: 50,
+                    top: 0,
+                    bottom: 0
+                }
+            }
+        }
+    });
 }
 
 
