@@ -78,6 +78,7 @@ $(function () {
     init();
 });
 var socket = null;
+var charts = null;
 function init() {
     var $messages = $("#messages");
     setWebSocket($messages);
@@ -88,102 +89,126 @@ function setWebSocket($messages) {
         alert("エラー:対応していないブラウザです");
     }
     else {
-        socket = new WebSocket("wss://ws.zaif.jp:8888/stream?currency_pair=mona_jpy");
+        socket = new WebSocket("wss://ws.zaif.jp:8888/stream?currency_pair=btc_jpy");
         socket.onclose = function () {
             console.log("接続が終了しました");
         };
         socket.onmessage = function (e) {
-            $messages.append($("<li>").text(e.data));
+            if (charts != null) {
+                charts.Update(e.data);
+            }
             console.log("onmessages");
         };
     }
 }
 function displayLineChart() {
-    var data = {
-        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        datasets: [
-            {
-                label: "Prime and Fibonacci",
-                fillColor: "rgba(220,220,220,0.2)",
-                strokeColor: "rgba(220,220,220,1)",
-                pointColor: "rgba(220,220,220,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(220,220,220,1)",
-                data: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+    charts = new lineChart("lineChart");
+    charts.Display();
+}
+var lineChart = (function () {
+    function lineChart(id) {
+        this.l = 0;
+        this.id = id;
+    }
+    lineChart.prototype.Display = function () {
+        var canvas = document.getElementById(this.id);
+        var ctx = canvas.getContext("2d");
+        var labels = [];
+        var data = [];
+        for (var i = 0; i < 100; i++) {
+            labels.push(String(i));
+            data.push(0);
+        }
+        this.lc = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                        data: data,
+                        backgroundColor: ['#FF44FF'],
+                        fill: false,
+                    }]
             },
-            {
-                label: "My Second dataset",
-                fillColor: "rgba(151,187,205,0.2)",
-                strokeColor: "rgba(151,187,205,1)",
-                pointColor: "rgba(151,187,205,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(151,187,205,1)",
-                data: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
-            }
-        ]
-    };
-    var canvas = document.getElementById("lineChart");
-    var ctx = canvas.getContext("2d");
-    var lc = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['A', 'B', 'C', 'D', 'E'],
-            datasets: [{
-                    data: [5, 20, 11, 2, 30],
-                    backgroundColor: ['#FF4444', '#4444FF', '#44BB44', '#FFFF44', '#FF44FF']
-                }]
-        },
-        options: {
-            responsive: true,
-            legend: {
-                display: false
-            },
-            title: {
-                display: true,
-                fontSize: 18,
-                text: 'タイトル'
-            },
-            scales: {
-                yAxes: [{
-                        display: true,
-                        scaleLabel: {
+            options: {
+                animation: {
+                    duration: 0.2,
+                },
+                responsive: true,
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    fontSize: 18,
+                    text: 'タイトル'
+                },
+                scales: {
+                    yAxes: [{
                             display: true,
-                            labelString: '縦軸ラベル',
-                            fontSize: 18
-                        },
-                        ticks: {
-                            min: 0,
-                            max: 30,
-                            fontSize: 18,
-                        },
-                    }],
-                xAxes: [{
-                        display: true,
-                        barPercentage: 0.4,
-                        categoryPercentage: 0.4,
-                        scaleLabel: {
+                            scaleLabel: {
+                                display: true,
+                                labelString: '値段',
+                                fontSize: 18
+                            },
+                            ticks: {
+                                fontSize: 18,
+                            },
+                        }],
+                    xAxes: [{
                             display: true,
-                            labelString: '横軸ラベル',
-                            fontSize: 18
-                        },
-                        ticks: {
-                            fontSize: 18
-                        },
-                    }],
-            },
-            layout: {
-                padding: {
-                    left: 100,
-                    right: 50,
-                    top: 0,
-                    bottom: 0
+                            barPercentage: 0.1,
+                            categoryPercentage: 0.1,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '時刻',
+                                fontSize: 18
+                            },
+                            ticks: {
+                                fontSize: 18
+                            },
+                        }],
+                },
+                layout: {
+                    padding: {
+                        left: 100,
+                        right: 50,
+                        top: 0,
+                        bottom: 0
+                    }
                 }
             }
+        });
+    };
+    lineChart.prototype.Update = function (data) {
+        this.l = this.l + 1;
+        var d = JSON.parse(data);
+        console.log(d.last_price.price);
+        var date = new Date(d.timestamp);
+        this.lc.data.labels.shift();
+        this.lc.data.labels.push(String(date.getHours()) + ":" + String(date.getMinutes()));
+        var hoge = this.lc.data.datasets[0].data;
+        for (var i = 0; i < hoge.length - 1; i++) {
+            this.lc.data.datasets[0].data[i] = hoge[i + 1];
+            if (this.lc.data.datasets[0].data[i] <= 0) {
+                this.lc.data.datasets[0].data[i] = Number(d.last_price.price);
+            }
         }
-    });
-}
+        this.lc.data.datasets[0].data[hoge.length - 1] = Number(d.last_price.price);
+        this.lc.config.options.title.text = d.currency_pair;
+        this.lc.update();
+    };
+    return lineChart;
+}());
+var apiData = (function () {
+    function apiData() {
+    }
+    return apiData;
+}());
+var last_price = (function () {
+    function last_price() {
+    }
+    return last_price;
+}());
 
 
 /***/ })
