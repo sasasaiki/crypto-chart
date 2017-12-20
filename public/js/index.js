@@ -77,17 +77,25 @@ module.exports = __webpack_require__(1);
 $(function () {
     init();
 });
+var socket = null;
 function init() {
-    var $msgBox = $("#chatbox textarea");
     var $messages = $("#messages");
-    var $chatBox = $("#chatbox");
-    $chatBox.submit(function () { onClickSubmit($msgBox, $messages); return false; });
+    setWebSocket($messages);
 }
-function onClickSubmit($msgBox, $messages) {
-    var msg = $msgBox.val().toString();
-    alert(msg);
-    $messages.append($("<li>").text(msg));
-    $msgBox.val("");
+function setWebSocket($messages) {
+    if (!window["WebSocket"]) {
+        alert("エラー:対応していないブラウザです");
+    }
+    else {
+        socket = new WebSocket("wss://ws.zaif.jp:8888/stream?currency_pair=mona_jpy");
+        socket.onclose = function () {
+            console.log("接続が終了しました");
+        };
+        socket.onmessage = function (e) {
+            $messages.append($("<li>").text(e.data));
+            console.log("onmessages");
+        };
+    }
 }
 
 

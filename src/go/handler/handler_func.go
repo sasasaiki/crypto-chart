@@ -8,9 +8,6 @@ import (
 
 //HandlingFuncI ハンドリングすべき全てのfuncを持つ。ハンドリングするfuncを増やす場合は追加
 type HandlingFuncI interface {
-	Add(w http.ResponseWriter, r *http.Request)
-	Update(w http.ResponseWriter, r *http.Request)
-	Delete(w http.ResponseWriter, r *http.Request)
 	Get(w http.ResponseWriter, r *http.Request)
 }
 
@@ -18,35 +15,11 @@ type HandlingFuncI interface {
 func NewHandlingFuncs(h HandlingFuncI) []HandlingFunc {
 	return []HandlingFunc{
 		{
-			Function: h.Add,
-			Conf: &HandlingConf{
-				Path:      "/save",
-				Methods:   []string{"POST"},
-				NeedLogin: true,
-			},
-		},
-		{
 			Function: h.Get,
 			Conf: &HandlingConf{
-				Path:      "/get/{firstName}/{lastName}",
+				Path:      "/get/chart/zaft",
 				Methods:   []string{"GET"},
 				NeedLogin: false,
-			},
-		},
-		{
-			Function: h.Update,
-			Conf: &HandlingConf{
-				Path:      "/update",
-				Methods:   []string{"PUT"},
-				NeedLogin: true,
-			},
-		},
-		{
-			Function: h.Delete,
-			Conf: &HandlingConf{
-				Path:      "/delete",
-				Methods:   []string{"DELETE"},
-				NeedLogin: true,
 			},
 		},
 	}
