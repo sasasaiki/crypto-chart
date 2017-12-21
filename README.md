@@ -1,7 +1,3 @@
-# Templete for web app by Golang,TypeScript,Sass,Pug,Gulp
+# sasasaiki/crypto-chart
 
-モダンなWebアプリ開発のテンプレートプロジェクト
-
-gulpコマンドを叩いておけば自動でsass,pub,TypeScriptがビルドされマップも吐き出されます.
-
-(gulpの実行には　npm install -g gulp　が必要です)
+日本の取引所のチャートがまとめて見れるサービス（開発中）
